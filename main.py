@@ -504,6 +504,9 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str):
         # Clean up on disconnect
         if client_id and room_code in rooms:
             room = rooms[room_code]
+
+            room.participants_count -= 1
+            rooms[room_code] = room
             
             # Remove WebSocket connection
             if client_id in room.websocket_connections:
