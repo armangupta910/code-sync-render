@@ -282,12 +282,6 @@ def leave_room(room_code: str, request: LeaveRoomRequest):
             del room.websocket_connections[request.participant_id]
         
         del room.participants[request.participant_id]
-        room.participants_count -= 1
-        
-        # Auto-cleanup if no participants left
-        if room.participants_count == 0:
-            del rooms[room_code]
-            return {"message": "Left room successfully. Room has been deleted (no participants remaining)."}
     
     return {"message": "Left room successfully", "participants_remaining": room.participants_count}
 
@@ -507,6 +501,10 @@ async def websocket_endpoint(websocket: WebSocket, room_code: str):
 
             room.participants_count -= 1
             rooms[room_code] = room
+        
+            # Auto-cleanup if no participants left
+            if room.participants_count == 0:
+                del rooms[room_code]
             
             # Remove WebSocket connection
             if client_id in room.websocket_connections:
